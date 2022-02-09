@@ -3,6 +3,9 @@ using System.Collections.ObjectModel;
 
 namespace BotModel
 {
+    /// <summary>
+    /// Класс представляющий сообщение
+    /// </summary>
     public class Message : BaseNotificationClass
     {
         #region Конструкторы
@@ -27,20 +30,10 @@ namespace BotModel
 
         private string _time, _messageText, _firstName;
         private long _id;
-        private static ObservableCollection<Message> _messages;
 
         #endregion
 
         #region Свойства
-
-        public static ObservableCollection<Message> Messages
-        {
-            get
-            {
-                if (_messages == null) _messages = new();
-                return _messages;
-            }
-        }
 
         public string Time
         {
