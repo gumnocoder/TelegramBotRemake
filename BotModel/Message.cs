@@ -1,41 +1,55 @@
 ﻿using BotModel.Base;
+using BotModel.Interfaces;
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace BotModel
 {
     /// <summary>
     /// Класс представляющий сообщение
     /// </summary>
-    public class Message : BaseNotificationClass
+    public class Message : BaseNotificationClass, IMessage
     {
         #region Конструкторы
 
-        public Message() { }
 
         public Message(
-            string time,
-            string messageText,
-            string firstName,
-            long id)
+            IUser user,
+            DateTime time,
+            string messageText, 
+            string sender)
         {
             Time = time;
             MessageText = messageText;
-            FirstName = firstName;
-            Id = id;
+            user.Messages.Add(this);
+            Sender = sender;
+            Debug.WriteLine(this);
         }
 
         #endregion
 
         #region Поля
 
-        private string _time, _messageText, _firstName;
+        private string  _messageText;
+        private DateTime _time;
+        private string _sender;
         private long _id;
 
         #endregion
 
         #region Свойства
 
-        public string Time
+        public string Sender
+        {
+            get => _sender;
+            set
+            {
+                _sender = value;
+                OnPropertyChanged();
+            }
+        }
+        public DateTime Time
         {
             get => _time;
             set
@@ -55,26 +69,11 @@ namespace BotModel
             }
         }
 
-        public string FirstName
-        {
-            get => _firstName;
-            set
-            {
-                _firstName = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public long Id
-        {
-            get => _id;
-            set
-            {
-                _id = value;
-                OnPropertyChanged();
-            }
-        }
-
         #endregion
+
+        public override string ToString()
+        {
+            return $"{Sender} {Time} : {MessageText}";
+        }
     }
 }

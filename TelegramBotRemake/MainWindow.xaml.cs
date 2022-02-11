@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using static BotModel.TelegramBot;
 using System;
+using BotModel;
+using Services;
 
 namespace TelegramBotRemake
 {
@@ -13,7 +15,8 @@ namespace TelegramBotRemake
         public MainWindow()
         {
             InitializeComponent();
-            Client.StartReceiving();
+            new BotRunner(this, BotModel.User.Users);
+            //Client.StartReceiving();
         }
     }
 }

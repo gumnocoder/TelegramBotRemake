@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using Telegram.Bot;
@@ -8,6 +9,7 @@ namespace BotModel
     [Obsolete]
     public static class TelegramBot
     {
+
         #region Поля
 
         private static string _tokenPath = "token.ini";
@@ -38,6 +40,7 @@ namespace BotModel
                 return _client;
             }
         }
+
         #endregion
 
         #region Методы
