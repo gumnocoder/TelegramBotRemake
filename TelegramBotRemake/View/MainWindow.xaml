@@ -11,6 +11,14 @@
         <vm:MainWindowVM/>
     </Window.DataContext>
     <Grid>
-        
+        <Button 
+            Content="Button" 
+            HorizontalAlignment="Center"
+            Margin="0,170,0,0" 
+            VerticalAlignment="Top" 
+            Height="97"
+            Width="259"
+            Command="{Binding Cmd}"/>
+
     </Grid>
 </Window>

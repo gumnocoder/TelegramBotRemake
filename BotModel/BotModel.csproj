@@ -5,12 +5,36 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <COMReference Include="Microsoft.Office.Interop.VisOcx">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>4</VersionMinor>
+      <VersionMajor>1</VersionMajor>
+      <Guid>f1a8dfe4-bc61-48ba-afda-96df10247af0</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="{d37e2a3e-8545-3a39-9f4f-31827c9124ab}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>4</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>d37e2a3e-8545-3a39-9f4f-31827c9124ab</Guid>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Telegram.Bot" Version="16.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Exceptions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Drawing.Common">
+      <HintPath>..\..\..\..\.nuget\packages\system.drawing.common\5.0.2\ref\netcoreapp3.0\System.Drawing.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
