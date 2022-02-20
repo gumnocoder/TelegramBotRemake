@@ -26,6 +26,7 @@ namespace TelegramBotRemake.ViewModel
             Client.OnMessage += _imageMessageListener.Listen;
             Client.OnMessage += _textMessageListener.Listen;
 
+            _imageMessageListener.OnImageMessageReieved += new FileOnRequestSender().SendKeyboard;
             _imageMessageListener.OnImageMessageReieved += _userImageSaver.StartSave;
         }
     }

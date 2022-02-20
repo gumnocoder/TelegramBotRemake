@@ -41,7 +41,7 @@ namespace BotModel
         Image _image;
 
         public delegate void ImageConvertFinishHandler();
-        public static event ImageConvertFinishHandler ImageConverted;
+        public static event ImageConvertFinishHandler OnImageConverted;
 
         public async void StartSave(MessageEventArgs e)
         {
@@ -68,9 +68,9 @@ namespace BotModel
                                 _saver.SaveToFile(_outputFile, _image, ImageFormat.Tiff);
                                 break;
                         }
+                        _outputExtension = default;
+                        OnImageConverted?.Invoke();
                     }
-                    _outputExtension = default;
-                    ImageConverted?.Invoke(); 
                 });
             }
         }

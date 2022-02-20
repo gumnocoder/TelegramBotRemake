@@ -41,7 +41,7 @@ namespace BotModel
 
         public void Send(MessageEventArgs e)
         {
-            BuildDirectoryView();
+            if (Files.Count == 0) { BuildDirectoryView(); }
             SendDirectoryViewOnRequest(e);
         }
 
@@ -54,7 +54,15 @@ namespace BotModel
         {
             foreach (var file in Path.GetFiles())
             {
-                Files.Add(file.Name.ToString());
+                if (!file.Name.ToString().Contains(".ini") &&
+                    !file.Name.ToString().Contains(".dll") && 
+                    !file.Name.ToString().Contains(".json") && 
+                    !file.Name.ToString().Contains(".pdb") &&
+                    !file.Name.ToString().Contains(".exe") &&
+                    !file.Name.ToString().Contains(".xml"))
+                {
+                    Files.Add(file.Name.ToString());
+                }
             }
         }
 

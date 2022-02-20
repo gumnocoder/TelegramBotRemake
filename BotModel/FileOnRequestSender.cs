@@ -12,6 +12,7 @@ namespace BotModel
     [Obsolete]
     public class FileOnRequestSender : IMessageSender
     {
+        public FileOnRequestSender() { }
         public FileOnRequestSender(ref bool FlagToGetFile)
         { 
             _flagToGetFile = FlagToGetFile;
@@ -56,7 +57,7 @@ namespace BotModel
         {
             SendFileFromServer(attribute, e);
         }
-        private async void SendKeyboard(MessageEventArgs e)
+        public async void SendKeyboard(MessageEventArgs e)
         {
             await Client.SendTextMessageAsync(
                 e.Message.Chat.Id.ToString(),
