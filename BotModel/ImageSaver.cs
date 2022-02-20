@@ -41,7 +41,7 @@ namespace BotModel
         Image _image;
 
         public delegate void ImageConvertFinishHandler();
-        public event ImageConvertFinishHandler ImageConverted;
+        public static event ImageConvertFinishHandler ImageConverted;
 
         public async void StartSave(MessageEventArgs e)
         {

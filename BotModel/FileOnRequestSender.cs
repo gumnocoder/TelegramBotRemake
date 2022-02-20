@@ -1,15 +1,11 @@
 ﻿using BotModel.Interfaces;
-using static BotModel.TelegramBot;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot.Args;
-using Telegram.Bot.Types.ReplyMarkups;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
+using Telegram.Bot.Args;
 using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
+using static BotModel.TelegramBot;
 
 namespace BotModel
 {

@@ -1,9 +1,5 @@
 ﻿using BotModel.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot.Args;
 using static BotModel.TelegramBot;
 
@@ -21,7 +17,7 @@ namespace BotModel
         }
 
         static bool _firstMessageFlag = true;
-        static bool _flagToGetFile = false;
+        public static bool _flagToGetFile = false;
         static string _outputFilenameExtension;
         IMessageSender _fileSender, _infoSender;
 
