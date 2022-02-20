@@ -7,5 +7,7 @@ namespace BotModel.Interfaces
     public interface IMessageSender
     {
         void Send(MessageEventArgs e);
+
+        void Send(string attribute, MessageEventArgs e);
     }
 }

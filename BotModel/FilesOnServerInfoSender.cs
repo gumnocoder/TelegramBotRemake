@@ -8,10 +8,9 @@ using static BotModel.TelegramBot;
 namespace BotModel
 {
     [Obsolete]
-    public class FilesOnServerInfoViewer : IMessageSender
+    public class FilesOnServerInfoSender : IMessageSender
     {
-        public FilesOnServerInfoViewer(MessageEventArgs e) => 
-            Send(e);
+        public FilesOnServerInfoSender() { }
 
         static DirectoryInfo _path;
         static ObservableCollection<string> _files;
@@ -44,6 +43,11 @@ namespace BotModel
         {
             BuildDirectoryView();
             SendDirectoryViewOnRequest(e);
+        }
+
+        public void Send(string message, MessageEventArgs e)
+        {
+            Send(e);
         }
 
         private static void BuildDirectoryView()
