@@ -6,10 +6,9 @@ using Telegram.Bot.Args;
 namespace BotModel
 {
     [Obsolete]
-    public class TextMessageListener : IMessageListener
+    public class TextMessageListener : IMessageListener, IFileRequester, ITextMessageListener, IFileConverterStarter
     {
         public TextMessageListener(
-            IImageSaver ImageSaver,
             ITelegramBotClient Client,
             IMessageSender FileSender,
             IMessageSender InfoSender)
@@ -17,16 +16,34 @@ namespace BotModel
             _fileSender = FileSender;
             _infoSender = InfoSender;
             this.Client = Client;
-            _imageSaver = ImageSaver;
         }
 
-        public static bool firstMessageFlag = true;
-        public static bool flagToGetFile = false;
-        public static string outputFilenameExtension;
+        bool _firstMessageFlag = true;
+        bool _flagToGetFile = false;
+        string _outputFilenameExtension;
         IMessageSender _fileSender, _infoSender;
+        IImageMessageListener _messageListener;
         ITelegramBotClient Client;
-        IImageSaver _imageSaver;
+        IImageSaver _imageConverter;
 
+        public bool FlagToGetFile
+        { get => _flagToGetFile; set => _flagToGetFile = value; }
+        public string OutputFilenameExtension 
+        { get => _outputFilenameExtension; set => _outputFilenameExtension = value; }
+        public bool FirstMessageFlag 
+        { get => _firstMessageFlag; set => _firstMessageFlag = value; }
+        public IImageMessageListener MessageListener 
+        { get => _messageListener; set => _messageListener = value; }
+        public IImageSaver ImageConverter { get => _imageConverter; set => _imageConverter = value; }
+
+        public void SetImageConverter(IImageSaver _imageConverter)
+        {
+            ImageConverter = _imageConverter;
+        }
+        public void SetImageMessageListener(IImageMessageListener MessageListener)
+        {
+            _messageListener = MessageListener;
+        }
         public void Listen(object sender, MessageEventArgs e)
         {
             var text = e.Message.Text;
@@ -34,7 +51,7 @@ namespace BotModel
             switch (text)
             {
                 case "/start":
-                    firstMessageFlag = false;
+                    _firstMessageFlag = false;
                     Client.SendTextMessageAsync(e.Message.Chat.Id.ToString(),
                         "Добро пожаловать в конвертер изображений!\n\n" +
                         "Отправьте изображение, которое хотите сохранить в другой формат, " +
@@ -51,21 +68,21 @@ namespace BotModel
                         "Внимание, регистр букв учитывается!");
                     break;
                 case "/getdir":
-                    firstMessageFlag = false;
+                    _firstMessageFlag = false;
                     _infoSender.Send(e);
                     break;
                 case "/getfile":
-                    firstMessageFlag = false;
+                    _firstMessageFlag = false;
                     Client.SendTextMessageAsync(
                         e.Message.Chat.Id,
                         $"Введите название файла который " +
                         $"хотите получить. Регистр букв учитывается");
-                    flagToGetFile = true;
+                    _flagToGetFile = true;
                     break;
                 default:
-                    if (flagToGetFile)
+                    if (_flagToGetFile)
                     {
-                        firstMessageFlag = false;
+                        _firstMessageFlag = false;
 
                         if (text != default)
                         {
@@ -78,37 +95,45 @@ namespace BotModel
                                 "Невозможно распознать запрос");
                         }
                     }
-                    else if (firstMessageFlag)
+                    else if (_firstMessageFlag)
                     {
                         Client.SendTextMessageAsync(
                             e.Message.Chat.Id,
                             "Воспользуйтесь командой /start");
-                        firstMessageFlag = false;
+                        _firstMessageFlag = false;
                     }
                     break;
             }
 
-            if (ImageMessageListener.inputImageExists)
+            if (_messageListener.InputImageExists)
             {
                 //IImageSaver _imageCompressor = new ImageSaver(/*ref outputFilenameExtension, ref inputImageExists, */new SaveTo());
 
                 switch (text)
                 {
                     case "BMP":
-                        outputFilenameExtension = ".bmp";
+                        _outputFilenameExtension = ".bmp";
                         break;
                     case "PNG":
-                        outputFilenameExtension = ".png";
+                        _outputFilenameExtension = ".png";
                         break;
                     case "GIF":
-                        outputFilenameExtension = ".gif";
+                        _outputFilenameExtension = ".gif";
                         break;
                     case "TIFF":
-                        outputFilenameExtension = ".tiff";
+                        _outputFilenameExtension = ".tiff";
                         break;
                 }
-                _imageSaver.StartSave(e);
+                _imageConverter.StartSave(e);
             }
         }
+    }
+
+    public interface IFileConverterStarter
+    {
+        IImageSaver ImageConverter { get; set; }
+
+        void SetImageConverter(IImageSaver _imageConverter);
+
     }
 }

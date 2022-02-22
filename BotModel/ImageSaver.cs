@@ -15,12 +15,14 @@ namespace BotModel
     public class ImageSaver : IImageSaver, IImageConverter
     {
         public ImageSaver(
+            IImageMessageListener ImageMessageListener,
+            IFileRequester FileRequester,
            // ref string outputExtension, 
-            //ref bool inputImageExists,
+           //ref bool inputImageExists,
             ISave Saver)
         {
-            _inputImageExists = ImageMessageListener.inputImageExists;
-            _outputExtension = TextMessageListener.outputFilenameExtension;
+            _imageMessageListener = ImageMessageListener;
+            _fileRequester = FileRequester;
             //_outputFile = _inputFile + outputExtension;
             _saver = Saver;
 
@@ -30,6 +32,8 @@ namespace BotModel
         string _outputFile, _outputExtension, _inputFile;
         bool _inputImageExists;
         ISave _saver;
+        IImageMessageListener _imageMessageListener;
+        IFileRequester _fileRequester;
         //static Image _image;
 
 
@@ -39,7 +43,7 @@ namespace BotModel
         {
             _inputFile = e.Message.MessageId.ToString();
             Image _image = null;
-            ImageMessageListener.inputImageExists = true;
+            _imageMessageListener.InputImageExists = true;
             string temp = _inputFile + ".jpg";
             try
             {
@@ -66,21 +70,21 @@ namespace BotModel
             Debug.WriteLine("ImageSaver.StartSave");
             _inputFile = e.Message.MessageId.ToString();
             Debug.WriteLine($"_inputFile = {_inputFile}");
-            _outputFile = $"{_inputFile}{TextMessageListener.outputFilenameExtension}";
+            _outputFile = $"{_inputFile}{_fileRequester.OutputFilenameExtension}";
             Debug.WriteLine($"_outputFile = {_outputFile}");
             //ImageMessageListener.inputImageExists = false;
-            Debug.WriteLine($"ImageMessageListener.inputImageExists = {ImageMessageListener.inputImageExists}");
+            Debug.WriteLine($"ImageMessageListener.inputImageExists = {_imageMessageListener.InputImageExists}");
             Debug.WriteLine($"_image == null {_image == null}");
             if (_image != null)
             {
                 await Task.Run(() =>
                 {
                 Debug.WriteLine($"_image != null !!!!!! {_image != null}");
-                Debug.WriteLine($"TextMessageListener.outputFilenameExtension != default {TextMessageListener.outputFilenameExtension != default}");
-                    if (TextMessageListener.outputFilenameExtension != default)
+                Debug.WriteLine($"TextMessageListener.outputFilenameExtension != default {_fileRequester.OutputFilenameExtension != default}");
+                    if (_fileRequester.OutputFilenameExtension != default)
                     {
-                        Debug.WriteLine($"TextMessageListener.outputFilenameExtension {TextMessageListener.outputFilenameExtension}");
-                        switch (TextMessageListener.outputFilenameExtension)
+                        Debug.WriteLine($"TextMessageListener.outputFilenameExtension {_fileRequester.OutputFilenameExtension}");
+                        switch (_fileRequester.OutputFilenameExtension)
                         {
                             case ".bmp":
                                 _saver.SaveToFile(_outputFile, _image, ImageFormat.Bmp);
@@ -95,7 +99,7 @@ namespace BotModel
                                 _saver.SaveToFile(_outputFile, _image, ImageFormat.Tiff);
                                 break;
                         }
-                        TextMessageListener.outputFilenameExtension = default;
+                        _fileRequester.OutputFilenameExtension = default;
                         ImageConverted?.Invoke(_outputFile, e);
                     }
                 });
