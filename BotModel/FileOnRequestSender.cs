@@ -2,26 +2,36 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
-using static BotModel.TelegramBot;
 
 namespace BotModel
 {
     [Obsolete]
-    public class FileOnRequestSender : IMessageSender
+    public class FileOnRequestSender : IMessageSender, IKeyboardable
     {
-        public FileOnRequestSender() { }
-        public FileOnRequestSender(ref bool FlagToGetFile)
+        public FileOnRequestSender(ITelegramBotClient Client) { this.Client = Client; }
+
+
+        public event FilenameExtensionChoosenHandler FilenameExtensionChoosen;
+        ITelegramBotClient Client;
+
+
+        public FileOnRequestSender(ITelegramBotClient Client, ref bool FlagToGetFile, ref bool FirstMessageFlag)
         { 
             _flagToGetFile = FlagToGetFile;
+            _firstMessageFlag = FirstMessageFlag;
+            this.Client = Client;
         }
 
-        static ReplyKeyboardMarkup _keyboard;
-        private bool _flagToGetFile;
 
-        public static ReplyKeyboardMarkup Keyboard
+        ReplyKeyboardMarkup _keyboard;
+        private bool _flagToGetFile;
+        bool _firstMessageFlag;
+
+        public ReplyKeyboardMarkup Keyboard
         {
             get
             {
@@ -57,12 +67,15 @@ namespace BotModel
         {
             SendFileFromServer(attribute, e);
         }
-        public async void SendKeyboard(MessageEventArgs e)
+        public  async void SendKeyboard(MessageEventArgs e)
         {
+            _firstMessageFlag = false;
             await Client.SendTextMessageAsync(
                 e.Message.Chat.Id.ToString(),
                 "Выберите формат в который хотите конвертировать изображение",
                 replyMarkup: Keyboard);
+            FilenameExtensionChoosen(e);
+            //OnFilenameExtensionChoosen(e);
         }
 
         private async void SendFileFromServer(
@@ -90,5 +103,13 @@ namespace BotModel
                 Debug.WriteLine(ex.Message);
             }
         }
+    }
+
+    public delegate void FilenameExtensionChoosenHandler(MessageEventArgs e);
+    public interface IKeyboardable
+    {
+        event FilenameExtensionChoosenHandler FilenameExtensionChoosen;
+        ReplyKeyboardMarkup Keyboard { get; set; }
+        void SendKeyboard(MessageEventArgs e);
     }
 }

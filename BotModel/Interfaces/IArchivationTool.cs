@@ -9,6 +9,6 @@ namespace BotModel.Interfaces
         delegate void  ArchivationCompleteHandler(string FileName, MessageEventArgs e);
 
         event ArchivationCompleteHandler OnArchivationComplete;
-        void StartCompressing(MessageEventArgs e);
+        void StartCompressing(string fileName, MessageEventArgs e);
     }
 }

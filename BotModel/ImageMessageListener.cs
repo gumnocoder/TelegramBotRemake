@@ -1,30 +1,42 @@
 ﻿using BotModel.Interfaces;
 using System;
+using System.Diagnostics;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 
 namespace BotModel
 {
+    public delegate void ImageMessageReсievedHandler(MessageEventArgs e);
+
     [Obsolete]
-    public class ImageMessageListener : IMessageListener
+    public class ImageMessageListener : IMessageListener, INotifyImageMessageReieved
     {
-        static bool _inputImageExists = false;
-
-        public delegate void ImageMessageReievedHandler(MessageEventArgs e);
-        public event ImageMessageReievedHandler OnImageMessageReieved;
-
-        public static bool InputImageExists
+        public ImageMessageListener(ref bool FirstMessageFlag)
         {
-            get => _inputImageExists;
-            set => _inputImageExists = value;
+            _firstMessageFlag = FirstMessageFlag;
         }
+
+        public static bool inputImageExists = true;
+        bool _firstMessageFlag;
+
+        
+        public event ImageMessageReсievedHandler ImageMessageReieved;
         public void Listen(object sender, MessageEventArgs e)
         {
+            Debug.WriteLine($"");
+            Debug.WriteLine($"inputImageExists {inputImageExists}");
             if (e.Message.Type == MessageType.Photo)
             {
-                InputImageExists = true;
-                OnImageMessageReieved(e);
+                TextMessageListener.firstMessageFlag = false;
+                inputImageExists = true;
+                Debug.WriteLine($"inputImageExists {inputImageExists}");
+                ImageMessageReieved(e);
             }
         }
+    }
+
+    public interface INotifyImageMessageReieved
+    {
+        public event ImageMessageReсievedHandler ImageMessageReieved;
     }
 }

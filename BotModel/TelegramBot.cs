@@ -8,16 +8,16 @@ using Telegram.Bot;
 namespace BotModel
 {
     [Obsolete]
-    public static class TelegramBot
+    public class TelegramBot : ITelegramBot
     {
 
         #region Поля
 
-        private static string _tokenPath = "token.ini";
+        private string _tokenPath = "token.ini";
 
-        private static string _token;
+        private string _token;
 
-        private static TelegramBotClient _client;
+        private ITelegramBotClient  _client;
 
         #endregion
 
@@ -26,7 +26,7 @@ namespace BotModel
         /// <summary>
         /// Инстанс бота
         /// </summary>
-        public static TelegramBotClient Client
+        public ITelegramBotClient  Client
         {
             get
             {
@@ -46,7 +46,7 @@ namespace BotModel
 
         #region Методы
 
-        private static void SetToken(
+        private void SetToken(
             string tokenPath,
             ref string token)
         {
@@ -71,5 +71,10 @@ namespace BotModel
         }
 
         #endregion
+    }
+
+    public interface ITelegramBot
+    {
+        ITelegramBotClient Client { get; }
     }
 }

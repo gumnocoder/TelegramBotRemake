@@ -2,19 +2,20 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using Telegram.Bot;
 using Telegram.Bot.Args;
-using static BotModel.TelegramBot;
 
 namespace BotModel
 {
     [Obsolete]
     public class FilesOnServerInfoSender : IMessageSender
     {
-        public FilesOnServerInfoSender() { }
+        public FilesOnServerInfoSender(ITelegramBotClient Client) { this.Client = Client; }
 
-        static DirectoryInfo _path;
-        static ObservableCollection<string> _files;
-        public static DirectoryInfo Path 
+        DirectoryInfo _path;
+        ObservableCollection<string> _files;
+        ITelegramBotClient Client;
+        public DirectoryInfo Path 
         {
             get 
             {
@@ -28,7 +29,7 @@ namespace BotModel
             }
         }
 
-        public static ObservableCollection<string> Files
+        public ObservableCollection<string> Files
         { 
             get 
             { 
@@ -50,7 +51,7 @@ namespace BotModel
             Send(e);
         }
 
-        private static void BuildDirectoryView()
+        private void BuildDirectoryView()
         {
             foreach (var file in Path.GetFiles())
             {
@@ -66,7 +67,7 @@ namespace BotModel
             }
         }
 
-        private static void SendDirectoryViewOnRequest(
+        private void SendDirectoryViewOnRequest(
             MessageEventArgs e)
         {
             var id = e.Message.Chat.Id.ToString();

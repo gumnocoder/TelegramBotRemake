@@ -1,7 +1,9 @@
 ﻿using BotModel;
 using BotModel.Interfaces;
 using System;
-using static BotModel.TelegramBot;
+using static BotModel.TextMessageListener;
+using System.Diagnostics;
+using Telegram.Bot.Args;
 
 namespace TelegramBotRemake.ViewModel
 {
@@ -13,21 +15,40 @@ namespace TelegramBotRemake.ViewModel
     {
         public MainWindowVM()
         {
-            // ImageSaver.ImageConverted +=
-            IImageSaver _userImageSaver = new ImageDownloader();
+            ISave _saver = new SaveTo();
+            ITelegramBot bot = new TelegramBot();
+                // ImageSaver.ImageConverted +=
+                IImageSaver _userImageSaver = new ImageDownloader(bot.Client);
+            IImageDownloader _imageDownloader = (IImageDownloader)_userImageSaver;
+            IImageSaver _imageConverter = new ImageSaver(_saver);
+            IImageConverter _convertEvent = (IImageConverter)_imageConverter;
+            _convertEvent.ImageConverted += new ArchivationTool(new FilesOnServerInfoSender(bot.Client)).StartCompressing;
+                IMessageSender fileSender = new FileOnRequestSender(bot.Client);
+                IKeyboardable keyboardSender = (IKeyboardable)fileSender;
 
-            IMessageListener _textMessageListener = new TextMessageListener(
-                new FileOnRequestSender(ref TextMessageListener._flagToGetFile), 
-                new FilesOnServerInfoSender());
+            IMessageListener _imageMessageListener = new ImageMessageListener(ref firstMessageFlag);
+            INotifyImageMessageReieved _messageRecieved = (INotifyImageMessageReieved)_imageMessageListener;
 
-            ImageMessageListener _imageMessageListener = new();
+                IMessageListener _textMessageListener = new TextMessageListener(
+                    _imageConverter,
+                    bot.Client,
+                    new FileOnRequestSender(bot.Client, ref flagToGetFile, ref firstMessageFlag),
+                    new FilesOnServerInfoSender(bot.Client));
 
-            Client.StartReceiving();
-            Client.OnMessage += _imageMessageListener.Listen;
-            Client.OnMessage += _textMessageListener.Listen;
+            bot.Client.StartReceiving();
+            bot.Client.OnMessage += _imageMessageListener.Listen;
+            bot.Client.OnMessage += _textMessageListener.Listen;
 
-            _imageMessageListener.OnImageMessageReieved += new FileOnRequestSender().SendKeyboard;
-            _imageMessageListener.OnImageMessageReieved += _userImageSaver.StartSave;
+            //_imageMessageListener.OnImageMessageReieved += new FileOnRequestSender().SendKeyboard;
+            _messageRecieved.ImageMessageReieved += _userImageSaver.StartSave;
+            keyboardSender.FilenameExtensionChoosen += OnImage;
+            //FileOnRequestSender.OnFilenameExtensionChoosen += _imageCompressor.StartSave;
+            _imageDownloader.OnImageDownloadFinish += keyboardSender.SendKeyboard; //_imageCompressor.StartSave;
+
+        }
+        public void OnImage(MessageEventArgs e)
+        {
+            Debug.WriteLine("MAIN on image");
         }
     }
 }

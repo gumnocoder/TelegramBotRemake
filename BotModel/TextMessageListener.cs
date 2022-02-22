@@ -1,7 +1,7 @@
 ﻿using BotModel.Interfaces;
 using System;
+using Telegram.Bot;
 using Telegram.Bot.Args;
-using static BotModel.TelegramBot;
 
 namespace BotModel
 {
@@ -9,35 +9,23 @@ namespace BotModel
     public class TextMessageListener : IMessageListener
     {
         public TextMessageListener(
+            IImageSaver ImageSaver,
+            ITelegramBotClient Client,
             IMessageSender FileSender,
             IMessageSender InfoSender)
         {
             _fileSender = FileSender;
             _infoSender = InfoSender;
+            this.Client = Client;
+            _imageSaver = ImageSaver;
         }
 
-        static bool _firstMessageFlag = true;
-        public static bool _flagToGetFile = false;
-        static string _outputFilenameExtension;
+        public static bool firstMessageFlag = true;
+        public static bool flagToGetFile = false;
+        public static string outputFilenameExtension;
         IMessageSender _fileSender, _infoSender;
-
-        public static bool FirstMessageFlag
-        {
-            get => _firstMessageFlag;
-            set => _firstMessageFlag = value;
-        }
-
-        public static bool FlagToGetFile
-        {
-            get => _flagToGetFile;
-            set => _flagToGetFile = value;
-        }
-
-        public static string OutputFilenameExtension
-        {
-            get => _outputFilenameExtension;
-            set => _outputFilenameExtension = value;
-        }
+        ITelegramBotClient Client;
+        IImageSaver _imageSaver;
 
         public void Listen(object sender, MessageEventArgs e)
         {
@@ -46,6 +34,7 @@ namespace BotModel
             switch (text)
             {
                 case "/start":
+                    firstMessageFlag = false;
                     Client.SendTextMessageAsync(e.Message.Chat.Id.ToString(),
                         "Добро пожаловать в конвертер изображений!\n\n" +
                         "Отправьте изображение, которое хотите сохранить в другой формат, " +
@@ -62,19 +51,21 @@ namespace BotModel
                         "Внимание, регистр букв учитывается!");
                     break;
                 case "/getdir":
+                    firstMessageFlag = false;
                     _infoSender.Send(e);
                     break;
                 case "/getfile":
+                    firstMessageFlag = false;
                     Client.SendTextMessageAsync(
                         e.Message.Chat.Id,
                         $"Введите название файла который " +
                         $"хотите получить. Регистр букв учитывается");
-                    FlagToGetFile = true;
+                    flagToGetFile = true;
                     break;
                 default:
-                    if (FlagToGetFile)
+                    if (flagToGetFile)
                     {
-                        FirstMessageFlag = false;
+                        firstMessageFlag = false;
 
                         if (text != default)
                         {
@@ -87,33 +78,36 @@ namespace BotModel
                                 "Невозможно распознать запрос");
                         }
                     }
-                    else if (FirstMessageFlag)
+                    else if (firstMessageFlag)
                     {
                         Client.SendTextMessageAsync(
                             e.Message.Chat.Id,
                             "Воспользуйтесь командой /start");
-                        FirstMessageFlag = false;
+                        firstMessageFlag = false;
                     }
                     break;
             }
 
-            if (ImageMessageListener.InputImageExists)
+            if (ImageMessageListener.inputImageExists)
             {
+                //IImageSaver _imageCompressor = new ImageSaver(/*ref outputFilenameExtension, ref inputImageExists, */new SaveTo());
+
                 switch (text)
                 {
                     case "BMP":
-                        OutputFilenameExtension = ".bmp";
+                        outputFilenameExtension = ".bmp";
                         break;
                     case "PNG":
-                        OutputFilenameExtension = ".png";
+                        outputFilenameExtension = ".png";
                         break;
                     case "GIF":
-                        OutputFilenameExtension = ".gif";
+                        outputFilenameExtension = ".gif";
                         break;
                     case "TIFF":
-                        OutputFilenameExtension = ".tiff";
+                        outputFilenameExtension = ".tiff";
                         break;
                 }
+                _imageSaver.StartSave(e);
             }
         }
     }

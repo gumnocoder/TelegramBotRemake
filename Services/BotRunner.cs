@@ -4,6 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
+using Telegram.Bot;
 using Telegram.Bot.Args;
 using static BotModel.TelegramBot;
 
@@ -16,7 +17,7 @@ namespace Services
         private readonly ObservableCollection<User> _users;
         private IMessage _message;
 
-        public BotRunner(Window window, ObservableCollection<User> users)
+        public BotRunner(ITelegramBotClient Client, Window window, ObservableCollection<User> users)
         {
             _window = window;
             _users = users;

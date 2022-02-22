@@ -17,15 +17,21 @@ namespace BotModel
             OnArchivationComplete += _sender.Send;
         }
 
+        public ArchivationTool(IMessageSender archiveSender)
+        {
+            _sender = archiveSender;
+            OnArchivationComplete += _sender.Send;
+        }
+
         IMessageSender _sender;
         string _archiveName, _fileName;
         public event IArchivationTool.ArchivationCompleteHandler OnArchivationComplete;
 
-        public void StartCompressing(MessageEventArgs e)
+        public void StartCompressing(string fileName, MessageEventArgs e)
         {
-            using (FileStream file = new FileStream(_fileName, FileMode.OpenOrCreate))
+            using (FileStream file = new FileStream(fileName, FileMode.OpenOrCreate))
             {
-                using (FileStream archive = File.Create(_archiveName))
+                using (FileStream archive = File.Create($"{fileName}.zip"))
                 {
                     using (GZipStream compression = new GZipStream(archive, CompressionMode.Compress))
                     {
