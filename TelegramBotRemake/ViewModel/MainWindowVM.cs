@@ -20,7 +20,7 @@ namespace TelegramBotRemake.ViewModel
             ITelegramBot bot = new TelegramBot();
                 // ImageSaver.ImageConverted +=
                 IImageSaver _userImageSaver = new ImageDownloader(bot.Client);
-            IImageDownloader _imageDownloader = (IImageDownloader)_userImageSaver;
+            INotifyImageDownloadFinish _imageDownloader = (INotifyImageDownloadFinish)_userImageSaver;
             
             
             
@@ -64,7 +64,7 @@ namespace TelegramBotRemake.ViewModel
             ((INotifyImageMessageReieved)_imageMessageListener).ImageMessageReieved += _userImageSaver.StartSave;
             keyboardSender.FilenameExtensionChoosen += OnImage;
             //FileOnRequestSender.OnFilenameExtensionChoosen += _imageCompressor.StartSave;
-            _imageDownloader.OnImageDownloadFinish += keyboardSender.SendKeyboard; //_imageCompressor.StartSave;
+            _imageDownloader.ImageDownloadFinish += keyboardSender.SendKeyboard; //_imageCompressor.StartSave;
 
         }
         public void OnImage(MessageEventArgs e)
