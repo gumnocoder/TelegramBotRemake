@@ -1,4 +1,5 @@
 ﻿using BotModel.Interfaces;
+using BotModel.Notifications;
 using System;
 using System.Diagnostics;
 using Telegram.Bot.Args;
@@ -6,7 +7,6 @@ using Telegram.Bot.Types.Enums;
 
 namespace BotModel
 {
-    public delegate void ImageMessageReсievedHandler(MessageEventArgs e);
 
     [Obsolete]
     public class ImageMessageListener : IMessageListener, INotifyImageMessageReieved, IImageMessageListener
@@ -35,10 +35,5 @@ namespace BotModel
                 ImageMessageReieved(e);
             }
         }
-    }
-
-    public interface INotifyImageMessageReieved
-    {
-        public event ImageMessageReсievedHandler ImageMessageReieved;
     }
 }

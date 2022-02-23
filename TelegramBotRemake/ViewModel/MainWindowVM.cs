@@ -4,6 +4,7 @@ using System;
 using static BotModel.TextMessageListener;
 using System.Diagnostics;
 using Telegram.Bot.Args;
+using BotModel.Notifications;
 
 namespace TelegramBotRemake.ViewModel
 {
@@ -29,33 +30,38 @@ namespace TelegramBotRemake.ViewModel
             
             
 
-                IMessageListener _textMessageListener = new TextMessageListener(
-                    bot.Client,
-                    new FileOnRequestSender(bot.Client),
-                    new FilesOnServerInfoSender(bot.Client));
+                IMessageListener _textMessageListener = new TextMessageListener();
+            IMessageSender _filesOnServerInfoSender = new FilesOnServerInfoSender();
+            ((INotifyMessageRequest)_textMessageListener).MessageRequest += bot.OnMessageReactions;
+            ((INotifyListRequest)_filesOnServerInfoSender).ListRequest += bot.OnContentMessageReactions;
+            ((INotifyInfoRequest)_textMessageListener).InfoRequest += _filesOnServerInfoSender.Send;
 
-            
+
             IMessageListener _imageMessageListener = new ImageMessageListener((ITextMessageListener)_textMessageListener);
-            INotifyImageMessageReieved _messageRecieved = (INotifyImageMessageReieved)_imageMessageListener;
-            ((ITextMessageListener)_textMessageListener).SetImageMessageListener((IImageMessageListener)_imageMessageListener);
+           // INotifyImageMessageReieved _messageRecieved = (INotifyImageMessageReieved)_imageMessageListener;
+           // ((ITextMessageListener)_textMessageListener).SetImageMessageListener((IImageMessageListener)_imageMessageListener);
 
-            IImageSaver _imageConverter = 
-                new ImageSaver(
+            IImageConverter _imageConverter = 
+                new ImageConverter(
                     (IImageMessageListener)_imageMessageListener, 
                     (IFileRequester)_textMessageListener, 
                     _saver);
 
-            ((IFileConverterStarter)_textMessageListener).SetImageConverter(_imageConverter);
+            //((IFileConverterStarter)_textMessageListener).SetImageConverter(_imageConverter);
 
-            IImageConverter _convertEvent = (IImageConverter)_imageConverter;
-            _convertEvent.ImageConverted += new ArchivationTool(new FilesOnServerInfoSender(bot.Client)).StartCompressing;
+            //INotifyImageConvertersion _convertEvent = (INotifyImageConvertersion)_imageConverter;
+            ((INotifyImageConversion)_imageConverter).ImageConverted += 
+                new ArchivationTool(new FilesOnServerInfoSender()).StartCompressing;
+
+            ((INotifyExtensionChoosen)_textMessageListener).ExtensionChoosen +=
+                _imageConverter.StartConvert;
 
             bot.Client.StartReceiving();
             bot.Client.OnMessage += _imageMessageListener.Listen;
             bot.Client.OnMessage += _textMessageListener.Listen;
 
             //_imageMessageListener.OnImageMessageReieved += new FileOnRequestSender().SendKeyboard;
-            _messageRecieved.ImageMessageReieved += _userImageSaver.StartSave;
+            ((INotifyImageMessageReieved)_imageMessageListener).ImageMessageReieved += _userImageSaver.StartSave;
             keyboardSender.FilenameExtensionChoosen += OnImage;
             //FileOnRequestSender.OnFilenameExtensionChoosen += _imageCompressor.StartSave;
             _imageDownloader.OnImageDownloadFinish += keyboardSender.SendKeyboard; //_imageCompressor.StartSave;

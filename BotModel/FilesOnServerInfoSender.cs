@@ -1,4 +1,5 @@
 ﻿using BotModel.Interfaces;
+using BotModel.Notifications;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -8,13 +9,19 @@ using Telegram.Bot.Args;
 namespace BotModel
 {
     [Obsolete]
-    public class FilesOnServerInfoSender : IMessageSender
+    public class FilesOnServerInfoSender : IMessageSender, INotifyListRequest
     {
-        public FilesOnServerInfoSender(ITelegramBotClient Client) { this.Client = Client; }
 
         DirectoryInfo _path;
         ObservableCollection<string> _files;
-        ITelegramBotClient Client;
+
+        public event ListRequestEventHandler ListRequest;
+
+        public void OnListRequest(MessageEventArgs e, string FilesList)
+        {
+            ListRequest?.Invoke(e, FilesList);
+        }
+
         public DirectoryInfo Path 
         {
             get 
@@ -77,9 +84,7 @@ namespace BotModel
                 filesList += file.ToString() + "\n";
             }
 
-            Client.SendTextMessageAsync(
-                id,
-                "Список файлов доступных к скачиванию:\n\n" + filesList);
+            OnListRequest(e, filesList);
         }
     }
 }

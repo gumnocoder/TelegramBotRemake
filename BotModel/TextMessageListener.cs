@@ -1,4 +1,5 @@
 ﻿using BotModel.Interfaces;
+using BotModel.Notifications;
 using System;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -6,25 +7,44 @@ using Telegram.Bot.Args;
 namespace BotModel
 {
     [Obsolete]
-    public class TextMessageListener : IMessageListener, IFileRequester, ITextMessageListener, IFileConverterStarter
+    public class TextMessageListener : 
+        IMessageListener,
+        IFileRequester,
+        ITextMessageListener,
+        INotifyExtensionChoosen,
+        INotifyMessageRequest,
+        INotifyInfoRequest,
+        INotifyFileRequest
     {
-        public TextMessageListener(
-            ITelegramBotClient Client,
-            IMessageSender FileSender,
-            IMessageSender InfoSender)
-        {
-            _fileSender = FileSender;
-            _infoSender = InfoSender;
-            this.Client = Client;
-        }
 
         bool _firstMessageFlag = true;
         bool _flagToGetFile = false;
         string _outputFilenameExtension;
-        IMessageSender _fileSender, _infoSender;
-        IImageMessageListener _messageListener;
-        ITelegramBotClient Client;
-        IImageSaver _imageConverter;
+
+
+        public event IExtensionChoosenHandler ExtensionChoosen;
+        public event Notifications.MessageEventRequestHandler MessageRequest;
+        public event InfoRequestEventHandler InfoRequest;
+        public event FileRequestEventHanlder FileRequest;
+
+        public void OnMessageRequest(MessageEventArgs e, byte Code)
+        {
+            MessageRequest?.Invoke(e, Code);
+        }
+        public void OnExtensionChoosen(string Extension, MessageEventArgs e)
+        {
+            ExtensionChoosen?.Invoke(Extension, e);
+        }
+
+        public void OnInfoRequest(MessageEventArgs e)
+        {
+            InfoRequest?.Invoke(e);
+        }
+
+        public void OnFileRequest(string FileName, MessageEventArgs e)
+        {
+            FileRequest?.Invoke(FileName, e);
+        }
 
         public bool FlagToGetFile
         { get => _flagToGetFile; set => _flagToGetFile = value; }
@@ -32,18 +52,7 @@ namespace BotModel
         { get => _outputFilenameExtension; set => _outputFilenameExtension = value; }
         public bool FirstMessageFlag 
         { get => _firstMessageFlag; set => _firstMessageFlag = value; }
-        public IImageMessageListener MessageListener 
-        { get => _messageListener; set => _messageListener = value; }
-        public IImageSaver ImageConverter { get => _imageConverter; set => _imageConverter = value; }
 
-        public void SetImageConverter(IImageSaver _imageConverter)
-        {
-            ImageConverter = _imageConverter;
-        }
-        public void SetImageMessageListener(IImageMessageListener MessageListener)
-        {
-            _messageListener = MessageListener;
-        }
         public void Listen(object sender, MessageEventArgs e)
         {
             var text = e.Message.Text;
@@ -51,33 +60,20 @@ namespace BotModel
             switch (text)
             {
                 case "/start":
+                    OnMessageRequest(e, 1);
                     _firstMessageFlag = false;
-                    Client.SendTextMessageAsync(e.Message.Chat.Id.ToString(),
-                        "Добро пожаловать в конвертер изображений!\n\n" +
-                        "Отправьте изображение, которое хотите сохранить в другой формат, " +
-                        "выберите конечный формат и бот отправит Вам " +
-                        "заархивированный файл в нужном формате. " +
-                        "Доступные форматы JPEG, PNG, BMP и GIF." +
-                        "Обратите внимание что фотографии необходимо " +
-                        "присылать по одной, в противном случае будет " +
-                        "конвертировано только последнее изображение.\n\n" +
-                        "Список команд:\n\n" +
-                        "/start инструкция по использованию\n" +
-                        "/getdir список файлов для скачивания\n" +
-                        "/getfile отправляет запрос на отправку файла с сервера\n\n" +
-                        "Внимание, регистр букв учитывается!");
                     break;
                 case "/getdir":
                     _firstMessageFlag = false;
-                    _infoSender.Send(e);
+                    OnInfoRequest(e);
                     break;
                 case "/getfile":
+                    OnMessageRequest(e, 2);
                     _firstMessageFlag = false;
-                    Client.SendTextMessageAsync(
-                        e.Message.Chat.Id,
-                        $"Введите название файла который " +
-                        $"хотите получить. Регистр букв учитывается");
                     _flagToGetFile = true;
+                    break;
+                case "BMP" or "PNG" or "GIF" or "TIFF":
+                    OnExtensionChoosen($".{text.ToLower()}", e);
                     break;
                 default:
                     if (_flagToGetFile)
@@ -86,54 +82,20 @@ namespace BotModel
 
                         if (text != default)
                         {
-                            _fileSender.Send(text, e);
+                            OnFileRequest(text, e);
                         }
                         else
                         {
-                            Client.SendTextMessageAsync(
-                                e.Message.Chat.Id,
-                                "Невозможно распознать запрос");
+                            OnMessageRequest(e, 3);
                         }
                     }
                     else if (_firstMessageFlag)
                     {
-                        Client.SendTextMessageAsync(
-                            e.Message.Chat.Id,
-                            "Воспользуйтесь командой /start");
+                        OnMessageRequest(e, 4);
                         _firstMessageFlag = false;
                     }
                     break;
             }
-
-            if (_messageListener.InputImageExists)
-            {
-                //IImageSaver _imageCompressor = new ImageSaver(/*ref outputFilenameExtension, ref inputImageExists, */new SaveTo());
-
-                switch (text)
-                {
-                    case "BMP":
-                        _outputFilenameExtension = ".bmp";
-                        break;
-                    case "PNG":
-                        _outputFilenameExtension = ".png";
-                        break;
-                    case "GIF":
-                        _outputFilenameExtension = ".gif";
-                        break;
-                    case "TIFF":
-                        _outputFilenameExtension = ".tiff";
-                        break;
-                }
-                _imageConverter.StartSave(e);
-            }
         }
-    }
-
-    public interface IFileConverterStarter
-    {
-        IImageSaver ImageConverter { get; set; }
-
-        void SetImageConverter(IImageSaver _imageConverter);
-
     }
 }
