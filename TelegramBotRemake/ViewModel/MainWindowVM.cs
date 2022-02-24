@@ -1,6 +1,8 @@
 ﻿using BotModel;
 using BotModel.Interfaces;
 using BotModel.Notifications;
+using Services;
+using Services.Commands;
 using System;
 using System.Diagnostics;
 using Telegram.Bot.Args;
@@ -13,62 +15,87 @@ namespace TelegramBotRemake.ViewModel
     /// </summary>
     internal class MainWindowVM
     {
+        IBotManager _botManager;
+        bool _botActivityFlag;
+
         public MainWindowVM()
         {
-            ISave _saver = new SaveTo();
-            ITelegramBot bot = new TelegramBot();
-                // ImageSaver.ImageConverted +=
-                IImageSaver _userImageSaver = new ImageDownloader(bot.Client);
-            INotifyImageDownloadFinish _imageDownloader = (INotifyImageDownloadFinish)_userImageSaver;
-            
-            
-            
-                IMessageSender _fileSender = new FileOnRequestSender(bot.Client);
-                IKeyboardable _keyboardSender = (IKeyboardable)_fileSender;
+            _botManager = new BotManager();
+            _botActivityFlag = false;
+            #region
+            /*            ISave _saver = new SaveTo();
+                        ITelegramBot bot = new TelegramBot();
 
-            
-            
+                        IMessageSender _fileSender = new FileOnRequestSender(bot.Client);
+                        IMessageSender _filesOnServerInfoSender = new FilesOnServerInfoSender();
+                        IMessageListener _textMessageListener = new TextMessageListener();
+                        IMessageListener _imageMessageListener = 
+                            new ImageMessageListener((ITextMessageListener)_textMessageListener);
 
-                IMessageListener _textMessageListener = new TextMessageListener();
-            IMessageSender _filesOnServerInfoSender = new FilesOnServerInfoSender();
-            ((INotifyMessageRequest)_textMessageListener).MessageRequest += bot.OnMessageReactions;
-            ((INotifyListRequest)_filesOnServerInfoSender).ListRequest += bot.OnContentMessageReactions;
-            ((INotifyInfoRequest)_textMessageListener).InfoRequest += _filesOnServerInfoSender.Send;
+                        IImageSaver _userImageSaver = new ImageDownloader(bot.Client);
+                        IImageConverter _imageConverter = 
+                            new ImageConverter((IImageMessageListener)_imageMessageListener, (IFileRequester)_textMessageListener, _saver);
+
+                        IKeyboardable _keyboardSender = (IKeyboardable)_fileSender;
+
+                        ((INotifyMessageRequest)_textMessageListener).MessageRequest += bot.OnMessageReactions;
+                        ((INotifyListRequest)_filesOnServerInfoSender).ListRequest += bot.OnContentMessageReactions;
+                        ((INotifyInfoRequest)_textMessageListener).InfoRequest += _filesOnServerInfoSender.Send;
+
+                        bot.Client.StartReceiving();
+                        bot.Client.OnMessage += _imageMessageListener.Listen;
+                        bot.Client.OnMessage += _textMessageListener.Listen;
+                        ((INotifyImageConversion)_imageConverter).ImageConverted +=
+                            new ArchivationTool(new FilesOnServerInfoSender()).StartCompressing;
+                        ((INotifyImageMessageReieved)_imageMessageListener).ImageMessageReieved += _userImageSaver.StartSave;
+                        ((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen += OnImage;
+                        ((INotifyExtensionChoosen)_textMessageListener).ExtensionChoosen += _imageConverter.StartConvert;
+                        ((INotifyFileRequest)_textMessageListener).FileRequest += _fileSender.Send;
+                        ((INotifyImageDownloadFinish)_userImageSaver).ImageDownloadFinish += _keyboardSender.SendKeyboard;*/
+
+            // ImageSaver.ImageConverted +=
 
 
-            IMessageListener _imageMessageListener = new ImageMessageListener((ITextMessageListener)_textMessageListener);
-           // INotifyImageMessageReieved _messageRecieved = (INotifyImageMessageReieved)_imageMessageListener;
-           // ((ITextMessageListener)_textMessageListener).SetImageMessageListener((IImageMessageListener)_imageMessageListener);
 
-            IImageConverter _imageConverter = 
-                new ImageConverter(
-                    (IImageMessageListener)_imageMessageListener, 
-                    (IFileRequester)_textMessageListener, 
-                    _saver);
+
+
+
+
+            // INotifyImageMessageReieved _messageRecieved = (INotifyImageMessageReieved)_imageMessageListener;
+            // ((ITextMessageListener)_textMessageListener).SetImageMessageListener((IImageMessageListener)_imageMessageListener);
+
+
 
             //((IFileConverterStarter)_textMessageListener).SetImageConverter(_imageConverter);
 
             //INotifyImageConvertersion _convertEvent = (INotifyImageConvertersion)_imageConverter;
-            ((INotifyImageConversion)_imageConverter).ImageConverted += 
-                new ArchivationTool(new FilesOnServerInfoSender()).StartCompressing;
 
-            ((INotifyExtensionChoosen)_textMessageListener).ExtensionChoosen +=
-                _imageConverter.StartConvert;
 
-            bot.Client.StartReceiving();
-            bot.Client.OnMessage += _imageMessageListener.Listen;
-            bot.Client.OnMessage += _textMessageListener.Listen;
 
             //_imageMessageListener.OnImageMessageReieved += new FileOnRequestSender().SendKeyboard;
-            ((INotifyImageMessageReieved)_imageMessageListener).ImageMessageReieved += _userImageSaver.StartSave;
-            ((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen += OnImage;
+
             //FileOnRequestSender.OnFilenameExtensionChoosen += _imageCompressor.StartSave;
-            _imageDownloader.ImageDownloadFinish += _keyboardSender.SendKeyboard; //_imageCompressor.StartSave;
-            ((INotifyFileRequest)_textMessageListener).FileRequest += _fileSender.Send;
+
+
+            //_imageCompressor.StartSave;
+            #endregion
         }
-        public void OnImage(MessageEventArgs e)
+
+        private RelayCommand _botSwitcher;
+        public RelayCommand BotSwitcher =>
+            _botSwitcher ??= new(BotSwitcherCommand);
+
+        private void BotSwitcherCommand(object sender)
         {
-            Debug.WriteLine("MAIN on image");
+            if (!_botActivityFlag)
+            {
+                _botManager.StartBot();
+            }
+            else
+            {
+                _botManager.StopBot();
+            }
+            _botActivityFlag = !_botActivityFlag;
         }
     }
 }

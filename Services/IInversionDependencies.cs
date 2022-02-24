@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Commands
+namespace Services
 {
-    internal class TestCommand
+    public interface IInversionDependencies
     {
+        void InvertDependencies();
     }
 }

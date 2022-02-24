@@ -18,7 +18,7 @@
             VerticalAlignment="Top" 
             Height="97"
             Width="259"
-            Command="{Binding Cmd}"/>
+            Command="{Binding BotSwitcher}"/>
 
     </Grid>
 </Window>
