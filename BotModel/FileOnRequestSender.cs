@@ -1,4 +1,5 @@
 ﻿using BotModel.Interfaces;
+using BotModel.Notifications;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,7 +11,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 namespace BotModel
 {
     [Obsolete]
-    public class FileOnRequestSender : IMessageSender, IKeyboardable
+    public class FileOnRequestSender : IMessageSender, IKeyboardable, INotifyFilenameExtensionChoosen
     {
         public FileOnRequestSender(ITelegramBotClient Client) { this.Client = Client; }
 
@@ -18,6 +19,10 @@ namespace BotModel
         public event FilenameExtensionChoosenHandler FilenameExtensionChoosen;
         ITelegramBotClient Client;
 
+        public void OnFilenameExtensionChoosen(MessageEventArgs e)
+        {
+            FilenameExtensionChoosen?.Invoke(e);
+        }
 
         public FileOnRequestSender(ITelegramBotClient Client, ref bool FlagToGetFile, ref bool FirstMessageFlag)
         { 
@@ -74,7 +79,8 @@ namespace BotModel
                 e.Message.Chat.Id.ToString(),
                 "Выберите формат в который хотите конвертировать изображение",
                 replyMarkup: Keyboard);
-            FilenameExtensionChoosen(e);
+            OnFilenameExtensionChoosen(e);
+            //FilenameExtensionChoosen(e);
             //OnFilenameExtensionChoosen(e);
         }
 
@@ -103,13 +109,5 @@ namespace BotModel
                 Debug.WriteLine(ex.Message);
             }
         }
-    }
-
-    public delegate void FilenameExtensionChoosenHandler(MessageEventArgs e);
-    public interface IKeyboardable
-    {
-        event FilenameExtensionChoosenHandler FilenameExtensionChoosen;
-        ReplyKeyboardMarkup Keyboard { get; set; }
-        void SendKeyboard(MessageEventArgs e);
     }
 }

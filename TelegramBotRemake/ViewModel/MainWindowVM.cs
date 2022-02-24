@@ -1,10 +1,9 @@
 ﻿using BotModel;
 using BotModel.Interfaces;
+using BotModel.Notifications;
 using System;
-using static BotModel.TextMessageListener;
 using System.Diagnostics;
 using Telegram.Bot.Args;
-using BotModel.Notifications;
 
 namespace TelegramBotRemake.ViewModel
 {
@@ -24,8 +23,8 @@ namespace TelegramBotRemake.ViewModel
             
             
             
-                IMessageSender fileSender = new FileOnRequestSender(bot.Client);
-                IKeyboardable keyboardSender = (IKeyboardable)fileSender;
+                IMessageSender _fileSender = new FileOnRequestSender(bot.Client);
+                IKeyboardable _keyboardSender = (IKeyboardable)_fileSender;
 
             
             
@@ -62,10 +61,10 @@ namespace TelegramBotRemake.ViewModel
 
             //_imageMessageListener.OnImageMessageReieved += new FileOnRequestSender().SendKeyboard;
             ((INotifyImageMessageReieved)_imageMessageListener).ImageMessageReieved += _userImageSaver.StartSave;
-            keyboardSender.FilenameExtensionChoosen += OnImage;
+            ((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen += OnImage;
             //FileOnRequestSender.OnFilenameExtensionChoosen += _imageCompressor.StartSave;
-            _imageDownloader.ImageDownloadFinish += keyboardSender.SendKeyboard; //_imageCompressor.StartSave;
-
+            _imageDownloader.ImageDownloadFinish += _keyboardSender.SendKeyboard; //_imageCompressor.StartSave;
+            ((INotifyFileRequest)_textMessageListener).FileRequest += _fileSender.Send;
         }
         public void OnImage(MessageEventArgs e)
         {

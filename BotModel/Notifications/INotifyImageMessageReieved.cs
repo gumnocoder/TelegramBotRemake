@@ -6,6 +6,9 @@ namespace BotModel.Notifications
     [Obsolete]
     public delegate void ImageMessageReсievedHandler(MessageEventArgs e);
 
+    /// <summary>
+    /// Событие получения нового сообщения содержащего изображение
+    /// </summary>
     [Obsolete]
     public interface INotifyImageMessageReieved
     {

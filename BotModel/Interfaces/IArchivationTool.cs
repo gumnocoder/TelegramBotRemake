@@ -3,12 +3,12 @@ using Telegram.Bot.Args;
 
 namespace BotModel.Interfaces
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Obsolete]
     public interface IArchivationTool
     {
-        delegate void  ArchivationCompleteHandler(string FileName, MessageEventArgs e);
-
-        event ArchivationCompleteHandler OnArchivationComplete;
         void StartCompressing(string fileName, MessageEventArgs e);
     }
 }
