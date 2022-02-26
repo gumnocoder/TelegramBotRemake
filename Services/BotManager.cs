@@ -81,7 +81,7 @@ namespace Services
 
             KeyboardSender = (IKeyboardable)FileSender;
 
-            ArchivationTool = new ArchivationTool(FilesOnServerInfoSender);
+            ArchivationTool = new ArchivationTool();
         }
         public void Subscibe()
         {
@@ -89,13 +89,13 @@ namespace Services
             Bot.Client.OnMessage += _textMessageListener.Listen;
 
             ((INotifyMessageRequest)TextMessageListener).MessageRequest += Bot.OnMessageReactions;
-            ((INotifyListRequest)FilesOnServerInfoSender).ListRequest += Bot.OnContentMessageReactions;
-            ((INotifyInfoRequest)TextMessageListener).InfoRequest += FilesOnServerInfoSender.Send;
+            ((INotifyListRequest)FilesOnServerInfoSender).ListRequest += Bot.OnContentMessageReactions; 
+            ((INotifyInfoRequest)TextMessageListener).InfoRequest += FilesOnServerInfoSender.Send; 
             ((INotifyImageConversion)ImageConverter).ImageConverted += ArchivationTool.StartCompressing;
             ((INotifyImageMessageReieved)ImageMessageListener).ImageMessageReieved += UserImageSaver.StartSave;
             ((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen += ImageConverter.GetParams;
-
-           ((INotifyExtensionChoosen)TextMessageListener).ExtensionChoosen += ImageConverter.StartConvert;
+            ((INotifyArchivationComplete)ArchivationTool).ArchivationComplete += FileSender.Send;
+            ((INotifyExtensionChoosen)TextMessageListener).ExtensionChoosen += ImageConverter.StartConvert;
             ((INotifyFileRequest)TextMessageListener).FileRequest += FileSender.Send;
             ((INotifyImageDownloadFinish)UserImageSaver).ImageDownloadFinish += KeyboardSender.SendKeyboard;
         }
@@ -111,7 +111,7 @@ namespace Services
             ((INotifyImageConversion)ImageConverter).ImageConverted -= ArchivationTool.StartCompressing;
             ((INotifyImageMessageReieved)ImageMessageListener).ImageMessageReieved -= UserImageSaver.StartSave;
             ((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen -= ImageConverter.GetParams;
-
+            ((INotifyArchivationComplete)ArchivationTool).ArchivationComplete -= FileSender.Send;
             ((INotifyExtensionChoosen)TextMessageListener).ExtensionChoosen -= ImageConverter.StartConvert;
             ((INotifyFileRequest)TextMessageListener).FileRequest -= FileSender.Send;
             ((INotifyImageDownloadFinish)UserImageSaver).ImageDownloadFinish -= KeyboardSender.SendKeyboard;

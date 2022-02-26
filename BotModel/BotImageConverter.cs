@@ -79,7 +79,6 @@ namespace BotModel
                     switch (Extension)
                     {
                         case ".bmp":
-                            Debug.WriteLine($".bmp");
                             _saver.SaveToFile(_outputFile, _image, ImageFormat.Bmp);
                             break;
                         case ".png":

@@ -75,7 +75,9 @@ namespace BotModel
         public void OnContentMessageReactions(MessageEventArgs e, string Content)
         {
             _content = Content;
-            OnMessageReactions(e, 6);
+            Client.SendTextMessageAsync(
+                e.Message.Chat.Id,
+                "Список файлов доступных к скачиванию:\n\n" + _content);
         }
 
         public void OnMessageReactions(MessageEventArgs e, byte Code)
@@ -116,11 +118,6 @@ namespace BotModel
                     Client.SendTextMessageAsync(
                         e.Message.Chat.Id,
                         "Невозможно распознать запрос");
-                    break;
-                case 6:
-                    Client.SendTextMessageAsync(
-                        e.Message.Chat.Id,
-                        "Список файлов доступных к скачиванию:\n\n" + _content);
                     break;
                 default:
                     SendDefaultMessage(e);

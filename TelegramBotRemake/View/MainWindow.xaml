@@ -6,19 +6,50 @@
         xmlns:local="clr-namespace:TelegramBotRemake.View"
         xmlns:vm="clr-namespace:TelegramBotRemake.ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        ResizeMode="NoResize"
+        Title="MainWindow" Height="300" Width="350">
     <Window.DataContext>
         <vm:MainWindowVM/>
     </Window.DataContext>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="50*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <TextBlock
+            Grid.Row="1"
+            Grid.Column="1">
+            Инструкция:
+            <LineBreak/>
+            <LineBreak/>
+            Перед запуском бота поместите в директорию 
+            <LineBreak/>
+            с исполняемым файлом файл "token.ini", содержащий
+            <LineBreak/>
+             в себе Ваш токен, без пробелов в одну строку,
+            <LineBreak/>
+            после чего нажмите кнопку "Включить"
+        </TextBlock>
         <Button 
-            Content="Button" 
+            Grid.Row="3"
+            Grid.Column="1"
+            Content="{
+            Binding Indicator,
+            UpdateSourceTrigger=PropertyChanged, 
+            Mode=TwoWay}" 
             HorizontalAlignment="Center"
-            Margin="0,170,0,0" 
+            Margin="0,0,0,0" 
             VerticalAlignment="Top" 
-            Height="97"
-            Width="259"
+            Height="50"
+            Width="150"
             Command="{Binding BotSwitcher}"/>
-
     </Grid>
 </Window>

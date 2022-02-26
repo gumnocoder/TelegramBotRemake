@@ -13,11 +13,11 @@ namespace TelegramBotRemake.ViewModel
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    internal class MainWindowVM
+    internal class MainWindowVM : BaseVM
     {
         IBotManager _botManager;
         bool _botActivityFlag;
-
+        string _indicator = "Включить";
         public MainWindowVM()
         {
             _botManager = new BotManager();
@@ -81,6 +81,15 @@ namespace TelegramBotRemake.ViewModel
             #endregion
         }
 
+        public string Indicator
+        {
+            get => _indicator;
+            set
+            {
+                _indicator = value;
+                OnPropertyChanged();
+            }
+        }
         private RelayCommand _botSwitcher;
         public RelayCommand BotSwitcher =>
             _botSwitcher ??= new(BotSwitcherCommand);
@@ -90,10 +99,12 @@ namespace TelegramBotRemake.ViewModel
             if (!_botActivityFlag)
             {
                 _botManager.StartBot();
+                Indicator = "Выключить";
             }
             else
             {
                 _botManager.StopBot();
+                Indicator = "Включить";
             }
             _botActivityFlag = !_botActivityFlag;
         }

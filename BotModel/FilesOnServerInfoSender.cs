@@ -3,7 +3,6 @@ using BotModel.Notifications;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using Telegram.Bot;
 using Telegram.Bot.Args;
 
 namespace BotModel
@@ -18,6 +17,7 @@ namespace BotModel
     {
 
         DirectoryInfo _path;
+        string _filesList = string.Empty;
         ObservableCollection<string> _files;
 
         public event ListRequestEventHandler ListRequest;
@@ -67,6 +67,8 @@ namespace BotModel
         {
             if (Files.Count == 0) { BuildDirectoryView(); }
             SendDirectoryViewOnRequest(e);
+            OnListRequest(e, _filesList);
+            _filesList = string.Empty;
         }
 
         public void Send(string message, MessageEventArgs e)
@@ -94,22 +96,19 @@ namespace BotModel
             }
         }
 
+
+
         /// <summary>
         /// конвертирует коллекцию<string> в string для 
         /// отправки одним сообщением
         /// </summary>
         /// <param name="e"></param>
-        private void SendDirectoryViewOnRequest(
-            MessageEventArgs e)
+        private void SendDirectoryViewOnRequest(MessageEventArgs e)
         {
-            var id = e.Message.Chat.Id.ToString();
-            string filesList = string.Empty;
             foreach (var file in Files)
             {
-                filesList += file.ToString() + "\n";
+                _filesList += file.ToString() + "\n";
             }
-
-            OnListRequest(e, filesList);
         }
     }
 }

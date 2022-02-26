@@ -13,13 +13,8 @@ namespace BotModel
     [Obsolete]
     public class ArchivationTool : IArchivationTool, INotifyArchivationComplete
     {
-        public ArchivationTool(IMessageSender archiveSender)
-        {
-            _sender = archiveSender;
-            ArchivationComplete += _sender.Send;
-        }
+        public ArchivationTool() { }
 
-        IMessageSender _sender;
         string _archiveName;
         public event ArchivationCompleteEventHandler ArchivationComplete;
 
@@ -43,7 +38,6 @@ namespace BotModel
             }
 
             OnArchivationComplete(_archiveName, e);
-            ArchivationComplete -= _sender.Send;
         }
     }
 }
