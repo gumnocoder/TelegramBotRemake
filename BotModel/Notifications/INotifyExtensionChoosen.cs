@@ -13,6 +13,9 @@ namespace BotModel.Notifications
     [Obsolete]
     public interface INotifyExtensionChoosen
     {
+        /// <summary>
+        /// Событие назначения конечного расширения
+        /// </summary>
         public event IExtensionChoosenHandler ExtensionChoosen;
     }
 }

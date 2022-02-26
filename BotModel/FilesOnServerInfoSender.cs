@@ -8,6 +8,11 @@ using Telegram.Bot.Args;
 
 namespace BotModel
 {
+    /// <summary>
+    /// Класс содержащий логику отправки списка файлов, 
+    /// находящихся в директории с исполняющим файлом приложения, 
+    /// по запросу пользователя
+    /// </summary>
     [Obsolete]
     public class FilesOnServerInfoSender : IMessageSender, INotifyListRequest
     {
@@ -17,11 +22,19 @@ namespace BotModel
 
         public event ListRequestEventHandler ListRequest;
 
+        /// <summary>
+        /// запрос списка файлов ListRequest с проверкой на null
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="FilesList"></param>
         public void OnListRequest(MessageEventArgs e, string FilesList)
         {
             ListRequest?.Invoke(e, FilesList);
         }
 
+        /// <summary>
+        /// Путь к файлам
+        /// </summary>
         public DirectoryInfo Path 
         {
             get 
@@ -36,6 +49,9 @@ namespace BotModel
             }
         }
 
+        /// <summary>
+        /// Список файлов
+        /// </summary>
         public ObservableCollection<string> Files
         { 
             get 
@@ -58,6 +74,10 @@ namespace BotModel
             Send(e);
         }
 
+        /// <summary>
+        /// Заполняет список файлов игнорируя
+        /// файлы с указанными расширениями
+        /// </summary>
         private void BuildDirectoryView()
         {
             foreach (var file in Path.GetFiles())
@@ -74,6 +94,11 @@ namespace BotModel
             }
         }
 
+        /// <summary>
+        /// конвертирует коллекцию<string> в string для 
+        /// отправки одним сообщением
+        /// </summary>
+        /// <param name="e"></param>
         private void SendDirectoryViewOnRequest(
             MessageEventArgs e)
         {

@@ -12,6 +12,9 @@ namespace BotModel.Notifications
     /// </summary>
     public interface INotifyListRequest
     {
+        /// <summary>
+        /// Запрос списка файлов с пробросом списка в string
+        /// </summary>
         [Obsolete]
         event ListRequestEventHandler ListRequest;
     }

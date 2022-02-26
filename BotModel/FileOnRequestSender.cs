@@ -2,6 +2,7 @@
 using BotModel.Notifications;
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -10,31 +11,47 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotModel
 {
+    /// <summary>
+    /// Представляет логику передачи 
+    /// </summary>
     [Obsolete]
-    public class FileOnRequestSender : IMessageSender, IKeyboardable, INotifyFilenameExtensionChoosen
+    public class FileOnRequestSender :
+        IMessageSender, 
+        IKeyboardable,
+        INotifyFilenameExtensionChoosen
     {
-        public FileOnRequestSender(ITelegramBotClient Client) { this.Client = Client; }
-
-
-        public event FilenameExtensionChoosenHandler FilenameExtensionChoosen;
-        ITelegramBotClient Client;
-
-        public void OnFilenameExtensionChoosen(MessageEventArgs e)
+        public FileOnRequestSender(
+            ITelegramBotClient Client, 
+            ITextMessageListener TextListener, 
+            IFileRequester FileRequester)
         {
-            FilenameExtensionChoosen?.Invoke(e);
-        }
-
-        public FileOnRequestSender(ITelegramBotClient Client, ref bool FlagToGetFile, ref bool FirstMessageFlag)
-        { 
-            _flagToGetFile = FlagToGetFile;
-            _firstMessageFlag = FirstMessageFlag;
+            _fileRequester = FileRequester;
+            _textListener = TextListener;
             this.Client = Client;
         }
 
+        public event FilenameExtensionChoosenHandler FilenameExtensionChoosen;
+
+        /// <summary>
+        /// Назначение расширения с проверкой на Null
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="Filename"></param>
+        /// <param name="mess"></param>
+        /// <param name="Client"></param>
+        public void OnFilenameExtensionChoosen(
+            MessageEventArgs e,
+            string Filename, 
+            Telegram.Bot.Types.Message mess,
+            ITelegramBotClient Client)
+        {
+            FilenameExtensionChoosen?.Invoke(e, Filename, mess, Client);
+        }
 
         ReplyKeyboardMarkup _keyboard;
-        private bool _flagToGetFile;
-        bool _firstMessageFlag;
+        ITextMessageListener _textListener;
+        IFileRequester _fileRequester;
+        ITelegramBotClient Client;
 
         public ReplyKeyboardMarkup Keyboard
         {
@@ -72,16 +89,18 @@ namespace BotModel
         {
             SendFileFromServer(attribute, e);
         }
-        public  async void SendKeyboard(MessageEventArgs e)
+        public  async void SendKeyboard(
+            MessageEventArgs e, 
+            string Filename, 
+            Telegram.Bot.Types.Message mess,
+            ITelegramBotClient Client)
         {
-            _firstMessageFlag = false;
+            _textListener.FirstMessageFlag = false;
             await Client.SendTextMessageAsync(
                 e.Message.Chat.Id.ToString(),
                 "Выберите формат в который хотите конвертировать изображение",
                 replyMarkup: Keyboard);
-            OnFilenameExtensionChoosen(e);
-            //FilenameExtensionChoosen(e);
-            //OnFilenameExtensionChoosen(e);
+            OnFilenameExtensionChoosen(e, Filename, mess, Client);
         }
 
         private async void SendFileFromServer(
@@ -94,7 +113,7 @@ namespace BotModel
             {
                 using (Stream stream = File.OpenRead(path))
                 {
-                    _flagToGetFile = false;
+                    _fileRequester.FlagToGetFile = false;
 
                     await Client.SendDocumentAsync(
                         chatId: e.Message.Chat.Id.ToString(),

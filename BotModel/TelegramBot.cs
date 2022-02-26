@@ -8,6 +8,9 @@ using Telegram.Bot.Args;
 
 namespace BotModel
 {
+    /// <summary>
+    /// Класс представляющий клиент телеграмм бота
+    /// </summary>
     [Obsolete]
     public class TelegramBot : ITelegramBot
     {
@@ -65,10 +68,8 @@ namespace BotModel
             }
             catch (FileNotFoundException e)
             {
-                Debug.WriteLine(e.Message);
                 Environment.Exit(0);
             }
-            Debug.WriteLine($"{token} loaded!");
         }
 
         public void OnContentMessageReactions(MessageEventArgs e, string Content)

@@ -1,15 +1,15 @@
 ﻿using BotModel.Interfaces;
 using BotModel.Notifications;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
 namespace BotModel
 {
-
+    /// <summary>
+    /// Класс содержащий логику скачивания изображения из сообщения
+    /// </summary>
     [Obsolete]
     public class ImageDownloader : IImageSaver, INotifyImageDownloadFinish
     {
@@ -21,28 +21,26 @@ namespace BotModel
         public event ImageDownloadFinishEventHandler ImageDownloadFinish;
         ITelegramBotClient Client; 
 
-        async void OnImageDownloadFinish(MessageEventArgs e)
+        public void OnImageDownloadFinish(
+            MessageEventArgs e, 
+            string Filename,
+            Telegram.Bot.Types.Message mess, 
+            ITelegramBotClient Client)
         {
-            if (File.Exists(e.Message.MessageId.ToString() + ".jpg"))
-            {
-                await Task.Run(delegate ()
-                    { 
-                        if (new FileInfo(e.Message.MessageId.ToString() + ".jpg").Length > 0)
-                        {
-                            Debug.WriteLine("ImageDownloader.StartSave.File.Exists");
-                            ImageDownloadFinish?.Invoke(e);
-                        }
-                    }
-                );
-            }
+                ImageDownloadFinish?.Invoke(e, Filename, mess, Client);
         }
-
+        
         public async void StartSave(MessageEventArgs e)
         {
             using (FileStream fs = new(e.Message.MessageId.ToString() + ".jpg", FileMode.Create))
             {
                 await Client.GetInfoAndDownloadFileAsync(e.Message.Photo[^1].FileId.ToString(), fs);
-                OnImageDownloadFinish(e);
+            }
+            
+            string _file = e.Message.MessageId.ToString() + ".jpg";
+            if (File.Exists(_file))
+            {
+                OnImageDownloadFinish(e, _file, e.Message, this.Client);
             }
         }
     }

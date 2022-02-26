@@ -11,6 +11,9 @@ namespace BotModel.Notifications
     /// </summary>
     public interface INotifyFileRequest
     {
+        /// <summary>
+        /// Запрос файла
+        /// </summary>
         [Obsolete]
         event FileRequestEventHanlder FileRequest;
     }

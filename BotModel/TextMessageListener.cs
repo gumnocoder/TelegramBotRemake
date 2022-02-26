@@ -6,6 +6,9 @@ using Telegram.Bot.Args;
 
 namespace BotModel
 {
+    /// <summary>
+    /// Выполняет сканирование тектовых сообщений
+    /// </summary>
     [Obsolete]
     public class TextMessageListener : 
         IMessageListener,

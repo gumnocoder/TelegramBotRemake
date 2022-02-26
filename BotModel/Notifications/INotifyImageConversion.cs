@@ -12,6 +12,9 @@ namespace BotModel.Notifications
     [Obsolete]
     public interface INotifyImageConversion
     {
+        /// <summary>
+        /// Окончание конвертации изображения
+        /// </summary>
         event ImageConvertFinishHandler ImageConverted;
     }
 }

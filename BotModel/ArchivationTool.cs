@@ -7,6 +7,9 @@ using Telegram.Bot.Args;
 
 namespace BotModel
 {
+    /// <summary>
+    /// Класс представляющий архиватор
+    /// </summary>
     [Obsolete]
     public class ArchivationTool : IArchivationTool, INotifyArchivationComplete
     {

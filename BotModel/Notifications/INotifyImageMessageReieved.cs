@@ -12,6 +12,9 @@ namespace BotModel.Notifications
     [Obsolete]
     public interface INotifyImageMessageReieved
     {
+        /// <summary>
+        /// Получение сообщения с изображением
+        /// </summary>
         public event ImageMessageReсievedHandler ImageMessageReieved;
     }
 }

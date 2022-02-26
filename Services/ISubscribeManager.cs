@@ -1,14 +1,11 @@
-﻿using BotModel;
-using BotModel.Interfaces;
-using BotModel.Notifications;
+﻿using BotModel.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services
 {
+    /// <summary>
+    /// Контракты для класса реализации подписок на события
+    /// </summary>
     [Obsolete]
     public interface ISubscribeManager
     {
@@ -18,11 +15,17 @@ namespace Services
         IMessageListener TextMessageListener { get; set; }
         IMessageListener ImageMessageListener { get; set; }
         IImageSaver UserImageSaver { get; set; }
-        IImageConverter ImageConverter { get; set; }
+        IBotImageConverter ImageConverter { get; set; }
         IKeyboardable KeyboardSender { get; set; }
         IArchivationTool ArchivationTool { get; set; }
 
+        /// <summary>
+        /// Подписка на события
+        /// </summary>
         public void Subscibe();
+        /// <summary>
+        /// Отписка от событий
+        /// </summary>
         public void Unsubscribe();
     }
 }

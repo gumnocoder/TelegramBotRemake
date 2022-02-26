@@ -5,6 +5,9 @@ using System.Diagnostics;
 
 namespace BotModel
 {
+    /// <summary>
+    /// Представляет пользователя бота
+    /// </summary>
     public class User : BaseNotificationClass, IUser
     {
         public User(

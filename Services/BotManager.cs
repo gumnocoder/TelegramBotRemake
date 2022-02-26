@@ -2,13 +2,12 @@
 using BotModel.Interfaces;
 using BotModel.Notifications;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services
 {
+    /// <summary>
+    /// Представляет рычаги управления ботом
+    /// </summary>
     [Obsolete]
     public class BotManager : ISubscribeManager, IInversionDependencies, IBotManager
     {
@@ -24,7 +23,7 @@ namespace Services
         IMessageListener _textMessageListener, _imageMessageListener;
 
         IImageSaver _userImageSaver;
-        IImageConverter _imageConverter;
+        IBotImageConverter _imageConverter;
 
         IKeyboardable _keyboardSender;
 
@@ -44,7 +43,7 @@ namespace Services
         { get => _imageMessageListener; set => _imageMessageListener = value; }
         public IImageSaver UserImageSaver 
         { get => _userImageSaver; set => _userImageSaver = value; }
-        public IImageConverter ImageConverter 
+        public IBotImageConverter ImageConverter 
         { get => _imageConverter; set => _imageConverter = value; }
         public IKeyboardable KeyboardSender
         { get => _keyboardSender; set => _keyboardSender = value; }
@@ -62,14 +61,20 @@ namespace Services
             Saver = new SaveTo();
             Bot = new TelegramBot();
 
-            FileSender = new FileOnRequestSender(Bot.Client);
             FilesOnServerInfoSender = new FilesOnServerInfoSender();
             TextMessageListener = new TextMessageListener();
+
+            FileSender = new FileOnRequestSender(
+                Bot.Client,
+                ((ITextMessageListener)TextMessageListener), 
+                ((IFileRequester)TextMessageListener));
+
             ImageMessageListener = new ImageMessageListener(
                 (ITextMessageListener)TextMessageListener);
 
             UserImageSaver = new ImageDownloader(Bot.Client);
-            ImageConverter = new ImageConverter
+
+            ImageConverter = new BotImageConverter
                 ((IImageMessageListener)_imageMessageListener,
                 (IFileRequester)TextMessageListener, 
                 Saver);
@@ -88,8 +93,9 @@ namespace Services
             ((INotifyInfoRequest)TextMessageListener).InfoRequest += FilesOnServerInfoSender.Send;
             ((INotifyImageConversion)ImageConverter).ImageConverted += ArchivationTool.StartCompressing;
             ((INotifyImageMessageReieved)ImageMessageListener).ImageMessageReieved += UserImageSaver.StartSave;
-            //((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen += OnImage;
-            ((INotifyExtensionChoosen)TextMessageListener).ExtensionChoosen += ImageConverter.StartConvert;
+            ((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen += ImageConverter.GetParams;
+
+           ((INotifyExtensionChoosen)TextMessageListener).ExtensionChoosen += ImageConverter.StartConvert;
             ((INotifyFileRequest)TextMessageListener).FileRequest += FileSender.Send;
             ((INotifyImageDownloadFinish)UserImageSaver).ImageDownloadFinish += KeyboardSender.SendKeyboard;
         }
@@ -104,7 +110,8 @@ namespace Services
             ((INotifyInfoRequest)TextMessageListener).InfoRequest -= FilesOnServerInfoSender.Send;
             ((INotifyImageConversion)ImageConverter).ImageConverted -= ArchivationTool.StartCompressing;
             ((INotifyImageMessageReieved)ImageMessageListener).ImageMessageReieved -= UserImageSaver.StartSave;
-            //((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen -= OnImage;
+            ((INotifyFilenameExtensionChoosen)_keyboardSender).FilenameExtensionChoosen -= ImageConverter.GetParams;
+
             ((INotifyExtensionChoosen)TextMessageListener).ExtensionChoosen -= ImageConverter.StartConvert;
             ((INotifyFileRequest)TextMessageListener).FileRequest -= FileSender.Send;
             ((INotifyImageDownloadFinish)UserImageSaver).ImageDownloadFinish -= KeyboardSender.SendKeyboard;

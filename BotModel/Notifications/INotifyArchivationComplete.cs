@@ -11,6 +11,9 @@ namespace BotModel.Notifications
     /// </summary>
     public interface INotifyArchivationComplete
     {
+        /// <summary>
+        /// Событие окончания архивации данных
+        /// </summary>
         [Obsolete]
         event ArchivationCompleteEventHandler ArchivationComplete;
     }

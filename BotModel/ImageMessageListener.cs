@@ -7,10 +7,19 @@ using Telegram.Bot.Types.Enums;
 
 namespace BotModel
 {
-
+    /// <summary>
+    /// Класс выполняющий сканирование сообщений с изображением
+    /// </summary>
     [Obsolete]
-    public class ImageMessageListener : IMessageListener, INotifyImageMessageReieved, IImageMessageListener
+    public class ImageMessageListener : 
+        IMessageListener, 
+        INotifyImageMessageReieved, 
+        IImageMessageListener
     {
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="messageListener"></param>
         public ImageMessageListener(ITextMessageListener messageListener)
         {
             _messageListener = messageListener;
@@ -25,13 +34,10 @@ namespace BotModel
         public event ImageMessageReсievedHandler ImageMessageReieved;
         public void Listen(object sender, MessageEventArgs e)
         {
-            Debug.WriteLine($"");
-            Debug.WriteLine($"inputImageExists {_inputImageExists}");
             if (e.Message.Type == MessageType.Photo)
             {
                 _messageListener.FirstMessageFlag = false;
                 _inputImageExists = true;
-                Debug.WriteLine($"inputImageExists {_inputImageExists}");
                 ImageMessageReieved(e);
             }
         }

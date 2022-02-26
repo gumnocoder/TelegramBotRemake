@@ -12,6 +12,9 @@ namespace BotModel.Notifications
     [Obsolete]
     public interface INotifyInfoRequest
     {
+        /// <summary>
+        /// Запрос списка файлов
+        /// </summary>
         event InfoRequestEventHandler InfoRequest;
     }
 }

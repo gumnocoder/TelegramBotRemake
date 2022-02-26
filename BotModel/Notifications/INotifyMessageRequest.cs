@@ -11,6 +11,9 @@ namespace BotModel.Notifications
     /// </summary>
     public interface INotifyMessageRequest
     {
+        /// <summary>
+        /// запрос реакции
+        /// </summary>
         [Obsolete]
         event MessageEventRequestHandler MessageRequest;
     }

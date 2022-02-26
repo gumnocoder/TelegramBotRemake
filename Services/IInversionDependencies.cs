@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace Services
 {
+    /// <summary>
+    /// Для логики инвертирования зависимостей
+    /// </summary>
     public interface IInversionDependencies
     {
+        /// <summary>
+        /// Разворачивает зависимости
+        /// </summary>
         void InvertDependencies();
     }
 }
